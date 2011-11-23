@@ -20,9 +20,10 @@ module Rack
   # It is performing a check/reload cycle at the start of every request, but
   # also respects a cool down time, during which nothing will be done.
   class Reloader
-    def initialize(app, cooldown = 10, backend = Stat)
+    def initialize(app, cooldown = 10, backend = Stat, &hook)
       @app = app
       @cooldown = cooldown
+      @hook = &hook
       @last = (Time.now - cooldown)
       @cache = {}
       @mtimes = {}
@@ -54,6 +55,7 @@ module Rack
     # A safe Kernel::load, issuing the hooks depending on the results
     def safe_load(file, mtime, stderr = $stderr)
       load(file)
+      @hook.call
       stderr.puts "#{self.class}: reloaded `#{file}'"
       file
     rescue LoadError, SyntaxError => ex
