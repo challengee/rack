@@ -23,7 +23,7 @@ module Rack
     def initialize(app, cooldown = 10, backend = Stat, &hook)
       @app = app
       @cooldown = cooldown
-      @hook = &hook
+      @hook = hook
       @last = (Time.now - cooldown)
       @cache = {}
       @mtimes = {}
